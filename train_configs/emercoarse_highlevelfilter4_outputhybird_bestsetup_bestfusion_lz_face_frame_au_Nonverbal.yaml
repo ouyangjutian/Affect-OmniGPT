@@ -1,0 +1,183 @@
+## w Pre-fusion + Attention
+model:
+  arch: affectgpt
+  model_type: pretrain_vicuna
+  
+  # ======================== 编码器配置 ========================
+  # 🎯 关键配置：不使用AU Agent
+  use_au_agent: False  # ❌ 训练时不加载AU Agent
+  
+  # 预提取模式优化 - 节省显存
+  # skip_encoders: True  # ✅ 跳过CLIP和HuBERT加载（进一步节省2-3GB）训练
+  skip_encoders: False # ❌ 推理
+  preextracted_visual_dim: 768   # CLIP_VIT_LARGE输出维度
+  preextracted_acoustic_dim: 1024  # HUBERT_LARGE输出维度
+  # preextracted_au_dim: 512       # ❗ 已废弃 - Nonverbal现在直接作为文本嵌入prompt
+
+  # ======================== 冻结策略 ========================
+  # Fusion配置
+  frozen_video_proj: False
+  frozen_video_Qformer: False
+  frozen_audio_Qformer: False
+  frozen_audio_proj: False
+  # frozen_au_Qformer: False     # ❗ 已废弃 - Nonverbal不再使用Q-Former
+  # frozen_au_proj: False        # ❗ 已废弃 - Nonverbal不再使用投影层
+  frozen_multi_Qformer: False
+  frozen_multi_llama_proj: False
+  frozen_llm: False
+
+  # ======================== 融合策略 ============================
+  multi_fusion_type: attention # attention/qformer
+  video_fusion_type: attention # qformer(default)/mean/attention
+  audio_fusion_type: attention # qformer(default)/mean/attention
+  image_fusion_type: mean       # token(default)/mean
+  # au_fusion_type: attention     # ❗ 已废弃 - Nonverbal直接作为文本嵌入
+
+  # ============================= Checkpoint ============================
+  # AffectGPT checkpoint
+  ckpt: ""
+  ckpt_2: ""
+
+  # ========================   LLM配置与编码器配置（仅用于路径构建）========================
+  llama_model: "Qwen25"
+  acoustic_encoder: "HUBERT_LARGE"
+  visual_encoder: "CLIP_VIT_LARGE"
+
+  # Query token配置
+  num_audio_query_token: 1
+  num_video_query_token: 1
+  num_multi_query_token: 1
+  num_image_query_token: 1
+  # num_au_query_token: 1  # ❗ 已废弃 - Nonverbal不需要query token
+
+  max_length: 1024
+  # ======================== Processor配置 ========================
+  vis_processor:
+    train:
+      name: "alpro_video_train"
+      n_frms: 8
+      image_size: 224
+  text_processor:
+    train:
+      name: "blip_caption"
+  img_processor:
+    train:
+      name: "blip2_image_train"
+      image_size: 224
+
+  # ======================== 数据集配置 ========================
+datasets:
+  mercaptionplus:
+    data_type: video
+    face_or_frame: 'multiface_audio_face_frame_au_text'  # multi, face, audio, frame, au, text
+    label_type: 'hybird'
+    
+    # Frame采样配置
+    frame_n_frms: 8
+    frame_sampling: 'uniform'  # 或 'emotion_peak'（AU智能采样）
+    
+    # MER-Factory输出路径 - 用于AU模态和emotion_peak采样
+    # mer_factory_output: '/home/project/MER-Factory/output'
+    
+    # 🎯 预提取特征配置 - 训练时全部启用
+    use_preextracted_frame: True   # ✅ Frame预提取
+    use_preextracted_face: True    # ✅ Face预提取
+    use_preextracted_audio: True   # ✅ Audio预提取
+    
+    # 🎯 Nonverbal配置 - 直接作为文本输入LLM（不需要CLIP编码）
+    nonverbal_json: '/home/project/AffectGPT/AffectGPT/MER-UniBench/MER_UniBench_grained.json'
+    use_nonverbal_text: True  # ✅ Nonverbal使用文本直接输入
+    
+    preextracted_root: './preextracted_features/mercaptionplus'
+    
+    # 编码器配置（用于构建特征路径）
+    visual_encoder: 'CLIP_VIT_LARGE'
+    acoustic_encoder: 'HUBERT_LARGE'
+    clips_per_video: 8
+    
+    # 使用说明:
+    # 1. 预先运行 extract_mercaptionplus_features.sh 提取AU特征
+    # 2. 确保 preextracted_features/mercaptionplus/au_CLIP_VITB32_8frms/ 存在
+    # 3. Frame/Face/Audio也建议预提取以获得最佳性能
+
+
+run:
+  task: video_text_pretrain
+
+  # ======================== 学习率配置（关键！）========================
+  # optimizer
+  # optimizer: adamw    # AdamW优化器
+  lr_sched: "linear_warmup_cosine_lr"
+  init_lr: 1e-5       # 初始学习率（峰值） 推荐：1e-4
+  min_lr: 1e-5        # 最小学习率（允许衰减100倍）1e-6
+  warmup_lr: 1e-6     # Warmup起始学习率
+  weight_decay: 0.05  # 权重衰减（正则化）
+
+  max_epoch: 60  # 60           # 15  # 总epoch数
+  iters_per_epoch: 5000 # 5000  # 31327                 # 每个epoch完整遍历数据集
+  warmup_steps: 5000 # 5000     # 6265                     # Warmup步数（2%的总步数）
+
+  batch_size_train: 1
+  batch_size_eval: 1
+  # 测试梯度累积
+  # accum_grad_iters: 8                    # 梯度累积步数（模拟batch_size=8）
+
+  seed: 42
+  num_workers: 4
+
+  amp: True
+  resume_ckpt_path: null
+
+  evaluate: False
+  train_splits: ["train"]
+
+  device: "cuda"
+  world_size: 1
+  dist_url: "env://"
+  distributed: True
+    # ===== 日志和保存 =====
+  # log_freq: 50                          # 日志打印频率（每100步）
+  # visualize_training: False    # 启用（默认）
+
+
+inference:
+  task: video_text_pretrain
+
+  vis_processor:
+    train:
+      name: "alpro_video_eval"
+      n_frms: 8
+      image_size: 224
+  text_processor:
+    train:
+      name: "blip_caption"
+  img_processor:
+    train:
+      name: "blip2_image_eval"
+      image_size: 224
+
+  face_or_frame: 'xxx'
+  
+  # 推理配置
+  frame_n_frms: 8
+  frame_sampling: 'uniform'       # 🎯 采样策略: 'uniform'(实时) 或 'emotion_peak'(预提取)
+  
+  # 🎯 预提取特征配置 - 每个模态独立控制
+  # use_preextracted_frame: 根据frame_sampling自动决定（emotion_peak→True, 其他→False）
+  use_preextracted_face: False   # ❌ Face实时加载.npy
+  use_preextracted_audio: False  # ❌ Audio实时加载
+  
+  preextracted_root: './preextracted_features'  # 预提取特征根目录
+  visual_encoder: 'CLIP_VIT_LARGE'  # 用于构建特征路径
+  acoustic_encoder: 'HUBERT_LARGE'  # 用于构建特征路径
+  
+  # 🎯 Nonverbal配置 - 直接作为文本输入LLM（不需要CLIP编码）
+  nonverbal_json: '/home/project/AffectGPT/AffectGPT/MER-UniBench/MER_UniBench_grained.json'
+  use_nonverbal_text: True  # ✅ Nonverbal使用文本直接输入
+  base_root: 'output/log_information/emercoarse_highlevelfilter4_outputhybird_bestsetup_bestfusion_lz_face_frame_au_Nonverbal/inference_result/results'
+  ckpt_root: xxx
+  ckpt_name: xxx
+  test_epoch: xxx
+  test_epochs: xxx-xxx
+  skip_epoch: 1
+  gpu: 0

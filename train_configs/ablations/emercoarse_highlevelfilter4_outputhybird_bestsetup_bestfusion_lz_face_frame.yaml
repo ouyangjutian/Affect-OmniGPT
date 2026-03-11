@@ -1,0 +1,180 @@
+## w Pre-fusion + Attention
+
+model:
+  arch: affectgpt
+  model_type: pretrain_vicuna
+  
+  # 预提取模式优化 - 完全移除编码器依赖节省2.3GB显存
+  skip_encoders: False  # 🎯 启用时完全跳过CLIP_VIT_LARGE和HUBERT_LARGE加载
+  # skip_encoders: True
+  # 预提取模式下的编码器配置（仅用于维度计算，不实际加载）
+  preextracted_visual_dim: 768   # CLIP_VIT_LARGE输出维度
+  preextracted_acoustic_dim: 1024  # HUBERT_LARGE输出维度
+
+  # Audio Q-Former and Video Q-Former
+  frozen_video_proj: False
+  frozen_video_Qformer: False
+  frozen_audio_Qformer: False
+  frozen_audio_proj: False
+  frozen_multi_Qformer: False
+  frozen_multi_llama_proj: False
+  frozen_llm: False
+
+  multi_fusion_type: attention # attention/qformer
+  video_fusion_type: attention # qformer(default)/mean/attention
+  audio_fusion_type: attention # qformer(default)/mean/attention
+  image_fusion_type: mean       # token(default)/mean
+
+  # AffectGPT
+  ckpt:   ""
+  ckpt_2: ""
+
+  # Other pre-trained models
+  llama_model: "Qwen25"            # Vicuna
+  acoustic_encoder: "HUBERT_LARGE" # IMAGEBIND
+  visual_encoder: "CLIP_VIT_LARGE" # EVA_CLIP_G
+
+  num_audio_query_token: 1
+  num_video_query_token: 1
+  num_multi_query_token: 1
+  num_image_query_token: 1
+  num_au_query_token: 1  # AU query token数量
+  
+  # AU Agent配置（训练和推理都使用）
+  use_au_agent: True  # 训练和推理都启用AU Agent
+  au_agent_base_model: "/home/project/Dataset/Emotion/tools/transformer/LLM/Qwen2.5-7B-Instruct"
+  au_agent_lora_weights: "/home/project/AffectGPT/AffectGPT/output/au_agent_qwen2.5_7b_lora"
+
+  max_length: 1024
+
+  vis_processor:
+    train:
+      name: "alpro_video_train"
+      n_frms: 8
+      image_size: 224
+  text_processor:
+    train:
+      name: "blip_caption"
+  img_processor:
+    train:
+      name: "blip2_image_train"
+      image_size: 224
+  
+
+datasets:
+
+  mercaptionplus:
+    data_type: video
+    face_or_frame: 'multiface_audio_face_frame_text' # 默认是读取 frame or face  multi, face, audio, text
+    label_type: 'hybird' # 模型是预测 description 还是 label 呢？
+    
+    # Frame采样配置 - 可选择均匀采样或峰值帧采样
+    frame_n_frms: 8        # Frame帧数: 8(均匀采样) 或 1(峰值帧)
+    frame_sampling: 'uniform'  # Frame采样策略: 'uniform'(均匀采样) 或 'emotion_peak'(峰值帧)
+    
+    # MER-Factory输出路径 - 用于加载AU result
+    mer_factory_output: '/home/project/MER-Factory/output'  # MER-Factory AU分析结果目录
+    
+    # 预提取特征配置 - 减少显存消耗
+    use_preextracted_features: False   # 🎯 启用预提取特征模式
+    preextracted_root: './preextracted_features/mercaptionplus'  # 预提取特征根目录
+    visual_encoder: 'CLIP_VIT_LARGE'    # 视觉编码器名称(用于构建特征路径)
+    acoustic_encoder: 'HUBERT_LARGE'    # 声学编码器名称(用于构建特征路径)
+    clips_per_video: 8                  # 音频片段数(用于构建特征路径)
+    
+    # 预提取特征使用说明:
+    # 1. 实时处理模式(默认): use_preextracted_features: False
+    #    - 优点: 灵活性高，支持数据增强
+    #    - 缺点: 显存消耗大(~3GB)，训练慢
+    # 2. 预提取特征模式: use_preextracted_features: True
+    #    - 优点: 显存消耗小(~500MB)，训练快3-5倍
+    #    - 缺点: 需要预先提取特征，灵活性较低
+    
+    # 使用示例:
+    # 1. 均匀采样8帧: frame_n_frms: 8, frame_sampling: 'uniform'
+    # 2. 峰值帧1帧:   frame_n_frms: 1, frame_sampling: 'emotion_peak'
+    # Face始终保持8帧uniform采样不变
+
+
+# 1. 采用大batch + 三个 80g gpu
+run:
+
+  task: video_text_pretrain
+
+  # optimizer
+  lr_sched: "linear_warmup_cosine_lr"
+  init_lr: 1e-5 # 3e-5 loss: nan -> 降低 loss 到 2e-5 nan -> 降低 loss 到 1e-5
+  min_lr: 1e-5
+  warmup_lr: 1e-6
+  weight_decay: 0.05
+
+  max_epoch: 60 # 20 -> 100 大概可以让每个样本跑2-3次的样子，因为 EMER-Coarse 大约有 11.5k samples => 大约 26h 就可以跑完，速度还ok的
+  iters_per_epoch: 5000 # 1000
+  warmup_steps: 5000    # 1000
+
+  batch_size_train: 1 # 3 # 这是单一gpu的batch_size；实际batch_size = gpu_num * batch_size_train
+  batch_size_eval:  1 # 3 # 这是单一gpu的batch_size；实际batch_size = gpu_num * batch_size_train
+
+  seed: 42
+  num_workers: 4
+
+  amp: True # auto mixed precision, multiplication (fp16), addition (fp32)
+  resume_ckpt_path: null # continue training from resume_ckpt_path
+
+  evaluate: False 
+  train_splits: ["train"]
+
+  device: "cuda" 
+  world_size: 1
+  dist_url: "env://"
+  distributed: True
+
+
+# 这部分放的是 inference 相关的
+inference:
+
+  task: video_text_pretrain
+
+  vis_processor:
+    train:
+      name: "alpro_video_eval"
+      n_frms: 8
+      image_size: 224
+  text_processor:
+    train:
+      name: "blip_caption"
+  img_processor:
+    train:
+      name: "blip2_image_eval"
+      image_size: 224
+
+  ######################################################
+  # NOTE: 为了避免出错，设置为与 emercoarse 或者 mer2023 一致就可以
+  face_or_frame: 'xxx'
+  ######################################################
+  
+  # Frame采样配置 - 推理时的Frame采样策略
+  frame_n_frms: 8        # Frame帧数: 8(均匀采样) 或 1(峰值帧)
+  frame_sampling: 'uniform'  # Frame采样策略: 'uniform'(均匀采样) 或 'emotion_peak'(峰值帧)
+  
+  # 预提取特征配置 - 推理时减少显存消耗
+  use_preextracted_features: False   # 🎯 启用预提取特征模式
+  preextracted_root: './preextracted_features/mercaptionplus'  # 预提取特征根目录
+  visual_encoder: 'CLIP_VIT_LARGE'    # 视觉编码器名称(用于构建特征路径)
+  acoustic_encoder: 'HUBERT_LARGE'    # 声学编码器名称(用于构建特征路径)
+  clips_per_video: 8                  # 音频片段数(用于构建特征路径)
+  
+  # 推理时Frame采样配置说明:
+  # 1. 均匀采样8帧: frame_n_frms: 8, frame_sampling: 'uniform'
+  # 2. 峰值帧1帧:   frame_n_frms: 1, frame_sampling: 'emotion_peak'
+  # 注意: Face始终保持8帧uniform采样不变
+
+  base_root: 'output/log_information/emercoarse_highlevelfilter4_outputhybird_bestsetup_bestfusion_lz_face_frame/7B/inference_result/results'
+  # inference ckpt
+  ckpt_root: xxx
+  ckpt_name: xxx
+  test_epoch: xxx
+  test_epochs: xxx-xxx
+  skip_epoch: 1 # only process on epoch%10=0 的部分 ckpt_3
+  gpu: 0
+
