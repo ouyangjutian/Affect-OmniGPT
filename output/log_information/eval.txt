@@ -1,0 +1,7 @@
+setsid bash -c "CUDA_VISIBLE_DEVICES=3 python evaluation.py" >/home/project/AffectGPT/AffectGPT/output/log_information/emercoarse_highlevelfilter4_outputhybird_bestsetup_bestfusion_lz_face_frame_au_Nonverbal/result/result_eval.log 2>&1
+
+setsid bash -c "CUDA_VISIBLE_DEVICES=2 python evaluation_frame_Non1.py" >/home/project/AffectGPT/AffectGPT/output/log_information/emercoarse_highlevelfilter4_outputhybird_bestsetup_bestfusion_lz_face_frame_au_Nonverbal/1/result/result_eval.log 2>&1
+
+setsid bash -c "CUDA_VISIBLE_DEVICES=1 python evaluation_no_frame.py" >/home/project/AffectGPT/AffectGPT/output/log_information/emercoarse_highlevelfilter4_outputhybird_bestsetup_bestfusion_lz_face_au_Nonverbal/result/result_eval.log 2>&1
+
+setsid bash -c "CUDA_VISIBLE_DEVICES=0 python evaluation_no_frame1.py" >/home/project/AffectGPT/AffectGPT/output/log_information/emercoarse_highlevelfilter4_outputhybird_bestsetup_bestfusion_lz_face_au_Nonverbal/1/result/result_eval.log 2>&1
