@@ -10,12 +10,12 @@ import logging
 import torch
 from omegaconf import OmegaConf
 
-from my_affectgpt.common.registry import registry
-from my_affectgpt.models.base_model import BaseModel
-from my_affectgpt.models.blip2 import Blip2Base
-from my_affectgpt.models.affectgpt import AffectGPT
-from my_affectgpt.processors.base_processor import BaseProcessor
-from my_affectgpt.models.tokenizer import *
+from my_affect_omnigpt.common.registry import registry
+from my_affect_omnigpt.models.base_model import BaseModel
+from my_affect_omnigpt.models.blip2 import Blip2Base
+from my_affect_omnigpt.models.affectgpt import AffectGPT
+from my_affect_omnigpt.processors.base_processor import BaseProcessor
+from my_affect_omnigpt.models.tokenizer import *
 
 
 __all__ = [

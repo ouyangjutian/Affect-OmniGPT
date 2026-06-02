@@ -21,7 +21,10 @@ import torch.utils.checkpoint
 from torch import nn
 from torch.nn import CrossEntropyLoss
 import torch.nn.functional as F
-
+# 新增
+from transformers.utils import logging
+from transformers import BertConfig, BertForMaskedLM as BertLMHeadModel
+#
 from transformers.activations import ACT2FN
 from transformers.file_utils import (
     ModelOutput,
@@ -37,14 +40,41 @@ from transformers.modeling_outputs import (
     SequenceClassifierOutput,
     TokenClassifierOutput,
 )
-from transformers.modeling_utils import (
-    PreTrainedModel,
-    apply_chunking_to_forward,
+
+from transformers import PreTrainedModel
+# from transformers.utils import find_pruneable_heads_and_indices, prune_linear_layer
+from transformers.models.bert.modeling_bert import (
     find_pruneable_heads_and_indices,
-    prune_linear_layer,
+    prune_linear_layer
 )
-from transformers.utils import logging
-from transformers.models.bert.configuration_bert import BertConfig
+
+###
+# from transformers.modeling_utils import (
+#     PreTrainedModel,
+#     apply_chunking_to_forward,
+#     find_pruneable_heads_and_indices,
+#     prune_linear_layer,
+# )
+
+# 自定义 apply_chunking_to_forward 函数
+def apply_chunking_to_forward(forward_fn, chunk_size, chunk_dim, *inputs):
+    """
+    forward_fn: 需要按块执行的前向函数
+    chunk_size: 每块的大小
+    chunk_dim: 分块的维度
+    *inputs: 输入 Tensor(s)
+    """
+    if chunk_size > 0:
+        chunks = inputs[0].split(chunk_size, dim=chunk_dim)
+        outputs = [forward_fn(c) for c in chunks]
+        return torch.cat(outputs, dim=chunk_dim)
+    else:
+        return forward_fn(*inputs)
+####
+from transformers import PreTrainedModel
+# from transformers.utils import find_pruneable_heads_and_indices, prune_linear_layer
+# 新版本 Transformers 没有提供这些了，所以自己从源码引入
+from transformers.models.bert.modeling_bert import find_pruneable_heads_and_indices, prune_linear_layer
 
 logger = logging.get_logger(__name__)
 

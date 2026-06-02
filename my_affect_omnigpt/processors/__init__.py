@@ -5,17 +5,17 @@
  For full license text, see the LICENSE_Lavis file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 """
 
-from my_affectgpt.processors.base_processor import BaseProcessor
-from my_affectgpt.processors.blip_processors import (
+from my_affect_omnigpt.processors.base_processor import BaseProcessor
+from my_affect_omnigpt.processors.blip_processors import (
     Blip2ImageTrainProcessor,
     Blip2ImageEvalProcessor,
     BlipCaptionProcessor,
 )
-from my_affectgpt.processors.video_processor import (
+from my_affect_omnigpt.processors.video_processor import (
     AlproVideoTrainProcessor,
     AlproVideoEvalProcessor
 )
-from my_affectgpt.common.registry import registry
+from my_affect_omnigpt.common.registry import registry
 
 __all__ = [
     "BaseProcessor",

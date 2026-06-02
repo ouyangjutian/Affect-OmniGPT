@@ -5,6 +5,6 @@
  For full license text, see the LICENSE_Lavis file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 """
 
-from my_affectgpt.runners.runner_base import RunnerBase
+from my_affect_omnigpt.runners.runner_base import RunnerBase
 
 __all__ = ["RunnerBase"]

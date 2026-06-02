@@ -4,7 +4,7 @@ import glob
 import logging
 from typing import Dict
 from omegaconf import OmegaConf
-from my_affectgpt.common.registry import registry
+from my_affect_omnigpt.common.registry import registry
 
 class Config:
     def __init__(self, args):

@@ -16,13 +16,13 @@ import torch.nn as nn
 import torch.distributed as dist
 import torch.nn.functional as F
 
-import my_affectgpt.common.dist_utils as dist_utils
-from my_affectgpt.common.dist_utils import download_cached_file
-from my_affectgpt.common.utils import is_url
-from my_affectgpt.common.logger import MetricLogger
-from my_affectgpt.models.base_model import BaseModel
-from my_affectgpt.models.Qformer import BertConfig, BertLMHeadModel
-from my_affectgpt.models.eva_vit import create_eva_vit_g
+import my_affect_omnigpt.common.dist_utils as dist_utils
+from my_affect_omnigpt.common.dist_utils import download_cached_file
+from my_affect_omnigpt.common.utils import is_url
+from my_affect_omnigpt.common.logger import MetricLogger
+from my_affect_omnigpt.models.base_model import BaseModel
+from my_affect_omnigpt.models.Qformer import BertConfig, BertLMHeadModel
+from my_affect_omnigpt.models.eva_vit import create_eva_vit_g
 from transformers import BertTokenizer
 
 
@@ -38,13 +38,20 @@ class Blip2Base(BaseModel):
         # if on gpu, use autocast with dtype if provided, otherwise use torch.float16
         enable_autocast = self.device != torch.device("cpu")
 
+        # if enable_autocast:
+        #     if torch.__version__.startswith('2.4.0'):
+        #         return torch.amp.autocast('cuda', dtype=dtype)
+        #     elif torch.__version__.startswith('2.1.0'):
+        #         return torch.cuda.amp.autocast(dtype=dtype)
+        #     else:
+        #         assert 1==0, f'unsupport torch version'
+        # else:
+        #     return contextlib.nullcontext()
         if enable_autocast:
-            if torch.__version__.startswith('2.4.0'):
+            try:
                 return torch.amp.autocast('cuda', dtype=dtype)
-            elif torch.__version__.startswith('2.1.0'):
+            except:
                 return torch.cuda.amp.autocast(dtype=dtype)
-            else:
-                assert 1==0, f'unsupport torch version'
         else:
             return contextlib.nullcontext()
 

@@ -1,0 +1,30 @@
+name: vllm
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - scipy
+  - scikit-learn
+  - pandas
+  - matplotlib
+  - pillow
+  - pip:
+    - torch==2.8.0
+    - torchvision==0.23.0
+    - torchaudio==2.8.0
+    - vllm
+    - transformers==4.49.0
+    - peft
+    - accelerate
+    - trl
+    - datasets
+    - evaluate
+    - tensorboardX
+    - openai-whisper
+    - webdataset
+    - pytorchvideo==0.1.5
+    - einops
+    - timm
+    - sentencepiece

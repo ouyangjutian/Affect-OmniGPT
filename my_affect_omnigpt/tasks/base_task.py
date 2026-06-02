@@ -10,10 +10,10 @@ import logging
 
 import torch
 import torch.distributed as dist
-from my_affectgpt.common.dist_utils import get_rank, get_world_size, is_main_process, is_dist_avail_and_initialized
-from my_affectgpt.common.logger import MetricLogger, SmoothedValue
-from my_affectgpt.common.registry import registry
-from my_affectgpt.datasets.data_utils import prepare_sample
+from my_affect_omnigpt.common.dist_utils import get_rank, get_world_size, is_main_process, is_dist_avail_and_initialized
+from my_affect_omnigpt.common.logger import MetricLogger, SmoothedValue
+from my_affect_omnigpt.common.registry import registry
+from my_affect_omnigpt.datasets.data_utils import prepare_sample
 
 # main process: model, dataset, training, evaluation, ...
 class BaseTask:
@@ -149,15 +149,23 @@ class BaseTask:
             lr_scheduler.step(cur_epoch=inner_epoch, cur_step=i)
 
             # (amp, scaler) for amp training [不同版本下，调用的方式存在差别]
-            if torch.__version__.startswith('2.4.0'):
+            # if torch.__version__.startswith('2.4.0'):
+            #     with torch.amp.autocast('cuda', enabled=use_amp):
+            #         loss = self.train_step(model=model, samples=samples)
+            # elif torch.__version__.startswith('2.1.0'):
+            #     with torch.cuda.amp.autocast(enabled=use_amp):
+            #         loss = self.train_step(model=model, samples=samples)
+            # else:
+            #     assert 1==0, f'unsupport torch version'
+            try:
+                # PyTorch 2.3+ 新 API
                 with torch.amp.autocast('cuda', enabled=use_amp):
                     loss = self.train_step(model=model, samples=samples)
-            elif torch.__version__.startswith('2.1.0'):
+            except:
+                # 旧版 PyTorch 2.x API
                 with torch.cuda.amp.autocast(enabled=use_amp):
                     loss = self.train_step(model=model, samples=samples)
-            else:
-                assert 1==0, f'unsupport torch version'
-
+                                
             if use_amp:
                 scaler.scale(loss).backward()
             else:

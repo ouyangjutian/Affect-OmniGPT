@@ -8,15 +8,15 @@ import json
 
 import torch
 from torch.utils.data import Dataset, ConcatDataset
-from my_affectgpt.models.tokenizer import load_tokenizer_from_LLM
+from my_affect_omnigpt.models.tokenizer import load_tokenizer_from_LLM
 
 import torch
 from PIL import Image
 import numpy as np
 
 import transformers
-from my_affectgpt.processors.video_processor import load_video, load_face
-from my_affectgpt.models.ImageBind.data import load_audio, transform_audio
+from my_affect_omnigpt.processors.video_processor import load_video, load_face
+from my_affect_omnigpt.models.ImageBind.data import load_audio, transform_audio
 import config
 
 class BaseDataset():

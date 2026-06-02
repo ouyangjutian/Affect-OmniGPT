@@ -1,4 +1,4 @@
-from my_affectgpt.datasets.builders.image_text_pair_builder import (
+from my_affect_omnigpt.datasets.builders.image_text_pair_builder import (
     MER2025OV_Builder,
     MERCaptionPlus_Builder,
     OVMERD_Builder,

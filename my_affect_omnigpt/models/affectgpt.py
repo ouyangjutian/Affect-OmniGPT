@@ -4,12 +4,12 @@ import torch
 import torch.nn as nn
 from torch.cuda.amp import autocast as autocast
 from transformers import BertConfig
-from my_affectgpt.common.registry import registry
-from my_affectgpt.models.blip2 import Blip2Base, disabled_train
+from my_affect_omnigpt.common.registry import registry
+from my_affect_omnigpt.models.blip2 import Blip2Base, disabled_train
 from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
-from my_affectgpt.models.Qformer import BertConfig, BertLMHeadModel
-from my_affectgpt.models.tokenizer import load_tokenizer_from_LLM
-from my_affectgpt.models.encoder import * # 只有调用了，才能实现 registry 过程
+from my_affect_omnigpt.models.Qformer import BertConfig, BertLMHeadModel
+from my_affect_omnigpt.models.tokenizer import load_tokenizer_from_LLM
+from my_affect_omnigpt.models.encoder import * # 只有调用了，才能实现 registry 过程
 import config
 
 

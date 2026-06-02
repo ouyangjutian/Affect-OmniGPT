@@ -16,13 +16,13 @@ import torch.nn as nn
 import torch.distributed as dist
 import torch.nn.functional as F
 
-import my_affectgpt.common.dist_utils as dist_utils
-from my_affectgpt.common.dist_utils import download_cached_file
-from my_affectgpt.common.utils import is_url
-from my_affectgpt.common.logger import MetricLogger
-from my_affectgpt.models.base_model import BaseModel
-from my_affectgpt.models.Qformer import BertConfig, BertLMHeadModel
-from my_affectgpt.models.eva_vit import create_eva_vit_g
+import my_affect_omnigpt.common.dist_utils as dist_utils
+from my_affect_omnigpt.common.dist_utils import download_cached_file
+from my_affect_omnigpt.common.utils import is_url
+from my_affect_omnigpt.common.logger import MetricLogger
+from my_affect_omnigpt.models.base_model import BaseModel
+from my_affect_omnigpt.models.Qformer import BertConfig, BertLMHeadModel
+from my_affect_omnigpt.models.eva_vit import create_eva_vit_g
 from transformers import AutoTokenizer
 import config
 

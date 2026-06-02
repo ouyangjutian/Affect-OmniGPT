@@ -7,9 +7,9 @@
 
 import re
 
-from my_affectgpt.common.registry import registry
-from my_affectgpt.processors.base_processor import BaseProcessor
-from my_affectgpt.processors.randaugment import RandomAugment
+from my_affect_omnigpt.common.registry import registry
+from my_affect_omnigpt.processors.base_processor import BaseProcessor
+from my_affect_omnigpt.processors.randaugment import RandomAugment
 from omegaconf import OmegaConf
 from torchvision import transforms
 from torchvision.transforms.functional import InterpolationMode

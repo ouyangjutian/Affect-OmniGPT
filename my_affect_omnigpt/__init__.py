@@ -9,11 +9,11 @@ import os
 import sys
 from omegaconf import OmegaConf
 
-from my_affectgpt.tasks import *
-from my_affectgpt.models import *
-from my_affectgpt.processors import *
-from my_affectgpt.datasets.builders import *
-from my_affectgpt.common.registry import registry
+from my_affect_omnigpt.tasks import *
+from my_affect_omnigpt.models import *
+from my_affect_omnigpt.processors import *
+from my_affect_omnigpt.datasets.builders import *
+from my_affect_omnigpt.common.registry import registry
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
 registry.register_path("library_root", root_dir)

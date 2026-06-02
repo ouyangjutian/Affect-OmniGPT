@@ -22,8 +22,8 @@ import numpy as np
 import torch
 from torch.utils.data.dataset import IterableDataset
 
-from my_affectgpt.common.registry import registry
-from my_affectgpt.datasets.datasets.base_dataset import ConcatDataset
+from my_affect_omnigpt.common.registry import registry
+from my_affect_omnigpt.datasets.datasets.base_dataset import ConcatDataset
 
 decord.bridge.set_bridge("torch")
 MAX_INT = registry.get("MAX_INT")

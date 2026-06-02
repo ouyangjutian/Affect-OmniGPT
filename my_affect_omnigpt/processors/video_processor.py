@@ -15,11 +15,11 @@ import torch
 from torchvision import transforms
 
 from decord import VideoReader
-from my_affectgpt.processors import transforms_video
-from my_affectgpt.processors.base_processor import BaseProcessor
-from my_affectgpt.processors.randaugment import VideoRandomAugment
-from my_affectgpt.processors import functional_video as F
-from my_affectgpt.common.registry import registry
+from my_affect_omnigpt.processors import transforms_video
+from my_affect_omnigpt.processors.base_processor import BaseProcessor
+from my_affect_omnigpt.processors.randaugment import VideoRandomAugment
+from my_affect_omnigpt.processors import functional_video as F
+from my_affect_omnigpt.common.registry import registry
 
 
 MAX_INT = registry.get("MAX_INT")

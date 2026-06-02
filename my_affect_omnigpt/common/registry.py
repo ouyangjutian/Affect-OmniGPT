@@ -34,7 +34,7 @@ class Registry:
         """
 
         def wrap(builder_cls):
-            from my_affectgpt.datasets.builders.base_dataset_builder import BaseDatasetBuilder
+            from my_affect_omnigpt.datasets.builders.base_dataset_builder import BaseDatasetBuilder
 
             assert issubclass(
                 builder_cls, BaseDatasetBuilder
@@ -65,7 +65,7 @@ class Registry:
         """
 
         def wrap(task_cls):
-            from my_affectgpt.tasks.base_task import BaseTask
+            from my_affect_omnigpt.tasks.base_task import BaseTask
 
             assert issubclass(
                 task_cls, BaseTask
@@ -94,7 +94,7 @@ class Registry:
         """
 
         def wrap(model_cls):
-            from my_affectgpt.models import BaseModel
+            from my_affect_omnigpt.models import BaseModel
 
             assert issubclass(
                 model_cls, BaseModel
@@ -123,7 +123,7 @@ class Registry:
         """
 
         def wrap(processor_cls):
-            from my_affectgpt.processors import BaseProcessor
+            from my_affect_omnigpt.processors import BaseProcessor
 
             assert issubclass(
                 processor_cls, BaseProcessor

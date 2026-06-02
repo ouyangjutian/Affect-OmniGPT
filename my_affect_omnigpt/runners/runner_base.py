@@ -15,23 +15,23 @@ from pathlib import Path
 import torch
 import torch.distributed as dist
 import webdataset as wds
-from my_affectgpt.common.dist_utils import (
+from my_affect_omnigpt.common.dist_utils import (
     download_cached_file,
     get_rank,
     get_world_size,
     is_main_process,
     main_process,
 )
-from my_affectgpt.common.registry import registry
-from my_affectgpt.common.utils import is_url
-from my_affectgpt.common.training_visualizer import TrainingVisualizer
-from my_affectgpt.datasets.data_utils import concat_datasets, reorg_datasets_by_split, ChainDataset
-from my_affectgpt.datasets.datasets.dataloader_utils import (
+from my_affect_omnigpt.common.registry import registry
+from my_affect_omnigpt.common.utils import is_url
+from my_affect_omnigpt.common.training_visualizer import TrainingVisualizer
+from my_affect_omnigpt.datasets.data_utils import concat_datasets, reorg_datasets_by_split, ChainDataset
+from my_affect_omnigpt.datasets.datasets.dataloader_utils import (
     IterLoader,
     MultiIterLoader,
     PrefetchLoader,
 )
-from my_affectgpt.common.optims import (
+from my_affect_omnigpt.common.optims import (
     LinearWarmupCosineLRScheduler,
     LinearWarmupStepLRScheduler,
 )
@@ -153,14 +153,25 @@ class RunnerBase:
     def scaler(self):
         amp = self.config.run_cfg.get("amp", False)
 
+        # if amp:
+        #     if self._scaler is None:
+        #         if torch.__version__.startswith('2.4.0'):
+        #             self._scaler = torch.amp.GradScaler('cuda')
+        #         elif torch.__version__.startswith('2.1.0'):
+        #             self._scaler = torch.cuda.amp.GradScaler()
+        #         else:
+        #             assert 1==0, f'unsupport torch version'
+        # return self._scaler
         if amp:
             if self._scaler is None:
-                if torch.__version__.startswith('2.4.0'):
+            # 兼容所有 PyTorch 2.x 版本，自动选择正确的 GradScaler
+                try:
+            # PyTorch 2.0+ 新 API
                     self._scaler = torch.amp.GradScaler('cuda')
-                elif torch.__version__.startswith('2.1.0'):
+                except:
+            # 旧版兼容 API
                     self._scaler = torch.cuda.amp.GradScaler()
-                else:
-                    assert 1==0, f'unsupport torch version'
+
         return self._scaler
 
     @property
@@ -673,12 +684,13 @@ class RunnerBase:
             )
             checkpoint = torch.load(cached_file, map_location=self.device, strict=False)
         elif os.path.isfile(url_or_filename):
-            checkpoint = torch.load(url_or_filename, map_location=self.device, strict=False)
+            # checkpoint = torch.load(url_or_filename, map_location=self.device, strict=False)
+            checkpoint = torch.load(url_or_filename, map_location=self.device)
         else:
             raise RuntimeError("checkpoint url or path is invalid")
 
         state_dict = checkpoint["model"]
-        self.unwrap_dist_model(self.model).load_state_dict(state_dict)
+        self.unwrap_dist_model(self.model).load_state_dict(state_dict, strict=False)
 
         self.optimizer.load_state_dict(checkpoint["optimizer"])
         if self.scaler and "scaler" in checkpoint:

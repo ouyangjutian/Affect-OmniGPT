@@ -13,7 +13,7 @@ from collections import defaultdict, deque
 import torch
 import torch.distributed as dist
 
-from my_affectgpt.common import dist_utils
+from my_affect_omnigpt.common import dist_utils
 
 
 class SmoothedValue(object):

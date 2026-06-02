@@ -17,11 +17,11 @@ import torch
 import transformers
 from transformers import AutoTokenizer, AutoModelForCausalLM, LlamaTokenizer
 
-from my_affectgpt.processors import transforms_video, AlproVideoTrainProcessor
-from my_affectgpt.conversation.conversation_video import Conversation,SeparatorStyle
-from my_affectgpt.datasets.datasets.base_dataset import BaseDataset
-from my_affectgpt.processors.video_processor import ToTHWC, ToUint8, load_video, load_face
-from my_affectgpt.models.ImageBind.data import load_audio, transform_audio # 将上面的函数功能拆解为两个
+from my_affect_omnigpt.processors import transforms_video, AlproVideoTrainProcessor
+from my_affect_omnigpt.conversation.conversation_video import Conversation,SeparatorStyle
+from my_affect_omnigpt.datasets.datasets.base_dataset import BaseDataset
+from my_affect_omnigpt.processors.video_processor import ToTHWC, ToUint8, load_video, load_face
+from my_affect_omnigpt.models.ImageBind.data import load_audio, transform_audio # 将上面的函数功能拆解为两个
 
 import config
 

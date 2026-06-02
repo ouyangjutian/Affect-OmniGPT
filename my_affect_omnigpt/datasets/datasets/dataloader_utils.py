@@ -8,7 +8,7 @@
 import time
 import random
 import torch
-from my_affectgpt.datasets.data_utils import move_to_cuda
+from my_affect_omnigpt.datasets.data_utils import move_to_cuda
 from torch.utils.data import DataLoader
 
 

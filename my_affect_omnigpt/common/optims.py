@@ -7,7 +7,7 @@
 
 import math
 
-from my_affectgpt.common.registry import registry
+from my_affect_omnigpt.common.registry import registry
 
 
 @registry.register_lr_scheduler("linear_warmup_step_lr")

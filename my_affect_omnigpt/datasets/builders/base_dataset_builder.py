@@ -6,10 +6,10 @@ import warnings
 import torch.distributed as dist
 from omegaconf import OmegaConf
 
-import my_affectgpt.common.utils as utils
-from my_affectgpt.common.dist_utils import is_dist_avail_and_initialized, is_main_process
-from my_affectgpt.common.registry import registry
-from my_affectgpt.processors.base_processor import BaseProcessor
+import my_affect_omnigpt.common.utils as utils
+from my_affect_omnigpt.common.dist_utils import is_dist_avail_and_initialized, is_main_process
+from my_affect_omnigpt.common.registry import registry
+from my_affect_omnigpt.processors.base_processor import BaseProcessor
 
 class BaseDatasetBuilder:
     train_dataset_cls, eval_dataset_cls = None, None

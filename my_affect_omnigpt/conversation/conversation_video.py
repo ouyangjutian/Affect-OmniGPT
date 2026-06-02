@@ -9,12 +9,12 @@ import numpy as np
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, LlamaTokenizer
 from transformers import StoppingCriteria, StoppingCriteriaList
-from my_affectgpt.common.registry import registry
-from my_affectgpt.processors import Blip2ImageEvalProcessor
-from my_affectgpt.processors.video_processor import ToTHWC, ToUint8, load_video, load_face
-from my_affectgpt.models.ImageBind.data import load_audio, transform_audio
-from my_affectgpt.datasets.builders.image_text_pair_builder import *
-from my_affectgpt.models.au_agent import AUAgent
+from my_affect_omnigpt.common.registry import registry
+from my_affect_omnigpt.processors import Blip2ImageEvalProcessor
+from my_affect_omnigpt.processors.video_processor import ToTHWC, ToUint8, load_video, load_face
+from my_affect_omnigpt.models.ImageBind.data import load_audio, transform_audio
+from my_affect_omnigpt.datasets.builders.image_text_pair_builder import *
+from my_affect_omnigpt.models.au_agent import AUAgent
 import config
 
 class SeparatorStyle(Enum):
